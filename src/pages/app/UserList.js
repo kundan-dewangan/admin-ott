@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import DataTable from 'react-data-table-component'
-import { columns, sampleData } from '../../json/UserList'
+import { columns } from '../../json/UserList'
 import { toast } from 'react-toastify'
 
 function UserList() {

@@ -1,5 +1,10 @@
 export const columns = [
     {
+      name: 'Full Name',
+      selector: 'fullName',
+      sortable: true,
+    },
+    {
       name: 'Email',
       selector: 'email',
       sortable: true,
