@@ -7,12 +7,12 @@ import { generateRandom5DigitNumber, getVimeoVideoId, getYouTubeVideoId } from '
 import { useNavigate } from 'react-router-dom';
 
 const validationSchema = Yup.object({
-    title: Yup.string().required('Title is required'),
-    thumbnail: Yup.string().required('Thumbnail is required'),
-    description: Yup.string().required('Description is required'),
-    genre: Yup.string().required('Genre is required'),
+    title: Yup.string().required('Title is required').max(300, 'Title must be exactly 300 characters'),
+    thumbnail: Yup.string().required('Thumbnail is required').max(10000, 'Thumbnail must be exactly 10000 characters'),
+    description: Yup.string().required('Description is required').max(1000000, 'Description must be exactly 1000000 characters'),
+    genre: Yup.string().required('Genre is required').max(30, 'genre must be exactly 30 characters'),
     type: Yup.string().required('Video type is required'),
-    url: Yup.string().required('URL is required'),
+    url: Yup.string().required('URL is required').max(10000, 'Url must be exactly 10000 characters'),
 });
 
 const AddVideo = () => {
