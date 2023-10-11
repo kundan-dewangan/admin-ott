@@ -3,7 +3,7 @@ import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { generateRandom5DigitNumber } from '../../utils/utils';
+import { generateRandom5DigitNumber, getVimeoVideoId, getYouTubeVideoId } from '../../utils/utils';
 import { useNavigate } from 'react-router-dom';
 
 const validationSchema = Yup.object({
@@ -11,12 +11,12 @@ const validationSchema = Yup.object({
     thumbnail: Yup.string().required('Thumbnail is required'),
     description: Yup.string().required('Description is required'),
     genre: Yup.string().required('Genre is required'),
-    type: Yup.string().required('Type is required'),
+    type: Yup.string().required('Video type is required'),
     url: Yup.string().required('URL is required'),
 });
 
 const AddVideo = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const initialValues = {
         id: generateRandom5DigitNumber(),
@@ -29,7 +29,14 @@ const AddVideo = () => {
     };
 
     const onSubmit = async (values, { resetForm }) => {
+
         // Handle form submission here
+        if (values?.type === 'youtube') {
+            values.playId = getYouTubeVideoId(values.url)
+        } else if (values?.type === 'vimeo') {
+            values.playId = getVimeoVideoId(values.url)
+        }
+
         try {
             const data = await fetch(`${process.env.REACT_APP_URL}videos`, {
                 method: "POST",
@@ -110,12 +117,30 @@ const AddVideo = () => {
                                 <ErrorMessage name="genre" component="div" className="text-danger" />
                             </div>
 
-                            <div className="mb-3">
+                            {/* <div className="mb-3">
                                 <label htmlFor="type" className="form-label">
                                     Type
                                 </label>
                                 <Field type="text" id="type" name="type" className="form-control cus-input" placeholder="Enter type" />
                                 <ErrorMessage name="type" component="div" className="text-danger" />
+                            </div> */}
+
+                            <div className="mb-3">
+                                <label htmlFor="type" className="form-label">
+                                    Video Type
+                                </label>
+                                <Field as="select" name="type" className="form-select cus-input">
+                                    <option value="" disabled selected>
+                                        Select Video Type
+                                    </option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="vimeo">Vimeo</option>
+                                </Field>
+                                <ErrorMessage
+                                    name="type"
+                                    component="div"
+                                    className="text-danger"
+                                />
                             </div>
 
                             <div className="mb-3">

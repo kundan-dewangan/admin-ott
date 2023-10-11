@@ -10,3 +10,28 @@ export const loginCred = {
     email: 'kundan@gmail.com',
     password: 'Kundan@1234'
 }
+
+
+export function getYouTubeVideoId(url) {
+    const urlParams = new URL(url);
+    if (urlParams.hostname === 'www.youtube.com' && urlParams.search) {
+        const searchParams = new URLSearchParams(urlParams.search);
+        if (searchParams.has('v')) {
+            return searchParams.get('v');
+        }
+    } else if (urlParams.hostname === 'youtu.be') {
+        const pathParts = urlParams.pathname.split('/');
+        if (pathParts[1]) {
+            return pathParts[1];
+        }
+    }
+    return null;
+}
+
+
+export function getVimeoVideoId(url) {
+    // Match the Vimeo video ID using a regular expression
+    const match = /https:\/\/vimeo.com\/(\d+)/.exec(url);
+    // If there is a match, return the video ID; otherwise, return null
+    return match ? match[1] : null;
+}
