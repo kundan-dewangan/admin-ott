@@ -35,3 +35,14 @@ export function getVimeoVideoId(url) {
     // If there is a match, return the video ID; otherwise, return null
     return match ? match[1] : null;
 }
+
+
+export const genreList = [
+    { key: "", value: "Select Video Type" },
+    { key: "Popular Genres", value: "Popular Genres" },
+    { key: "Sci-Fi Spectacles", value: "Sci-Fi Spectacles" },
+    { key: "Adventure Escapades", value: "Adventure Escapades" },
+    { key: "Horror Hysteria", value: "Horror Hysteria" },
+    { key: "Crime Chronicles", value: "Crime Chronicles" },
+    { key: "Music Mania", value: "Music Mania" },
+];
