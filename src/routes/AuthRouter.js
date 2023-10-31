@@ -8,18 +8,23 @@ import UserList from '../pages/app/UserList'
 import AddVideo from '../pages/app/AddVideo'
 import { ToastContainer } from 'react-toastify';
 import VideoList from '../pages/app/VideoList'
+import AddCategory from '../pages/app/AddCategory'
+import CategoryList from '../pages/app/CategoryList'
 function AuthRouter() {
     return (
         <BrowserRouter>
-             <ToastContainer />
+            <ToastContainer />
             <Routes>
                 <Route path="/app*" element={
                     <ProtectedRoute>
                         <Header />
                         <Routes>
-                            <Route index path="/user-list" element={<UserList />} />
+                            <Route index element={<Navigate to="/app/user-list" replace />} />
+                            <Route path="/user-list" element={<UserList />} />
                             <Route path="/add-video" element={<AddVideo />} />
                             <Route path="/video-list" element={<VideoList />} />
+                            <Route path="/add-category" element={<AddCategory />} />
+                            <Route path="/category-list" element={<CategoryList />} />
                             <Route path="/error" element={<Error />} />
                             <Route path="/app" element={<Navigate replace to="/home" />} />
                         </Routes>

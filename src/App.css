@@ -13,3 +13,16 @@ body {
 .cus-input::placeholder {
     color: '#dcdde1' !important;
 }
+
+.text-pointer{
+    cursor: pointer;
+}
+
+.my-modal .modal-content {
+    background-color: #333;
+    color: #fff;
+  }
+
+.rdt_TableHeader .kZXAGR {
+    background-color: #333 !important
+  }

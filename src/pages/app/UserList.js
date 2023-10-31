@@ -6,6 +6,8 @@ import { toast } from 'react-toastify'
 function UserList() {
 
     const [list, setList] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
+
 
     useEffect(() => {
         getData();
@@ -13,6 +15,7 @@ function UserList() {
 
     const getData = async () => {
         try {
+            setIsLoading(true)
             await fetch(`${process.env.REACT_APP_URL}users`, {
                 method: "GET",
                 headers: {
@@ -21,9 +24,11 @@ function UserList() {
             }).then((res) => res.json())
                 .then((data) => {
                     setList(data);
+                    setIsLoading(false)
                 })
                 .catch((err) => toast.error("Something wrong::" + err))
         } catch (err) {
+            setIsLoading(false)
             toast.error("Something wrong::" + err);
             console.log("Error::", err)
         }
@@ -39,6 +44,8 @@ function UserList() {
                 data={list}
                 pagination
                 theme="dark"
+                progressPending={isLoading}
+
             />
         </div>
     )

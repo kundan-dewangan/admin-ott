@@ -11,9 +11,11 @@ function Header() {
     return (
         <Navbar bg="dark" data-bs-theme="dark">
             <Container>
-                <Navbar.Brand href="#home">OTT Platform</Navbar.Brand>
+                <Navbar.Brand href="#home">Pinmbo</Navbar.Brand>
                 <Nav className="me-auto">
                     <Link to="/app/user-list" className='nav-link'>User List</Link>
+                    <Link to="/app/add-category" className='nav-link'>Add Category</Link>
+                    <Link to="/app/category-list" className='nav-link'>Category List</Link>
                     <Link to="/app/add-video" className='nav-link'>Add Video</Link>
                     <Link to="/app/video-list" className='nav-link'>Video List</Link>
                 </Nav>

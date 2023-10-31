@@ -14,18 +14,18 @@ export const loginCred = {
 
 export function getYouTubeVideoId(url) {
     const urlParams = new URL(url);
-    if (urlParams.hostname === 'www.youtube.com' && urlParams.search) {
+    if (urlParams?.hostname === 'www.youtube.com' && urlParams?.search) {
         const searchParams = new URLSearchParams(urlParams.search);
         if (searchParams.has('v')) {
             return searchParams.get('v');
         }
-    } else if (urlParams.hostname === 'youtu.be') {
-        const pathParts = urlParams.pathname.split('/');
+    } else if (urlParams?.hostname === 'youtu.be') {
+        const pathParts = urlParams?.pathname.split('/');
         if (pathParts[1]) {
             return pathParts[1];
         }
     }
-    return null;
+    return null
 }
 
 

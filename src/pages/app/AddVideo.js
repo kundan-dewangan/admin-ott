@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { generateRandom5DigitNumber, genreList, getVimeoVideoId, getYouTubeVideoId } from '../../utils/utils';
-import { useNavigate } from 'react-router-dom';
+import { getVimeoVideoId, getYouTubeVideoId } from '../../utils/utils';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const validationSchema = Yup.object({
     title: Yup.string().required('Title is required').max(300, 'Title must be exactly 300 characters'),
@@ -13,30 +13,70 @@ const validationSchema = Yup.object({
     genre: Yup.string().required('Genre is required').max(30, 'genre must be exactly 30 characters'),
     type: Yup.string().required('Video type is required'),
     url: Yup.string().required('URL is required').max(10000, 'Url must be exactly 10000 characters'),
+    priority: Yup.number().required('Priority is required').max(10000, 'Priority must be exactly 10000 characters'),
 });
 
 const AddVideo = () => {
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [genreList, setGenreList] = useState([]);
+
+    const { state } = useLocation();
+
+    useEffect(() => {
+        getAllGenre();
+    }, [])
+
+    const getAllGenre = async () => {
+        try {
+            await fetch(`${process.env.REACT_APP_URL_Two}category`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((res) => res.json())
+                .then((data) => {
+                    setGenreList(data);
+                })
+                .catch((err) => toast.error("Something wrong::" + err))
+        } catch (err) {
+            toast.error("Something wrong::" + err);
+            console.log("Error::", err)
+        }
+    }
+
 
     const initialValues = {
-        id: generateRandom5DigitNumber(),
-        title: '',
-        thumbnail: '',
-        description: '',
-        genre: '',
-        type: '',
-        url: '',
+        title: state?.title ? state?.title : '',
+        thumbnail: state?.thumbnail ? state?.thumbnail : '',
+        description: state?.description ? state?.description : '',
+        genre: state?.genre ? state?.genre : '',
+        type: state?.type ? state?.type : '',
+        url: state?.url ? state?.url : '',
+        priority: state?.priority ? state?.priority : '',
     };
 
     const onSubmit = async (values, { resetForm }) => {
+        if (state?.id) {
+            updateAPICall(values, resetForm)
+        } else {
+            addAPICall(values, resetForm)
+        }
+    };
 
+    const addAPICall = async (values, resetForm) => {
+        setIsLoading(true)
         // Handle form submission here
         if (values?.type === 'youtube') {
-            values.playId = getYouTubeVideoId(values.url)
+            const mainUrl = getYouTubeVideoId(values.url)
+
+            console.log("what is ::", mainUrl)
+            console.log("what is 22::", typeof (mainUrl))
+            if (mainUrl === null) return toast.error("Invalid Youtube URL");
+            values.playId = mainUrl
         } else if (values?.type === 'vimeo') {
             values.playId = getVimeoVideoId(values.url)
         }
-
         try {
             const data = await fetch(`${process.env.REACT_APP_URL}videos`, {
                 method: "POST",
@@ -49,11 +89,43 @@ const AddVideo = () => {
             toast.success('Successfully submited.');
             resetForm();
             navigate('/app/video-list');
+            setIsLoading(false)
         } catch (err) {
+            setIsLoading(false)
             toast.error("Something wrong::" + err);
             console.log("Something wrong::", err)
         }
-    };
+
+    }
+    const updateAPICall = async (values, resetForm) => {
+        setIsLoading(true)
+        // Handle form submission here
+        if (values?.type === 'youtube') {
+            values.playId = getYouTubeVideoId(values.url)
+        } else if (values?.type === 'vimeo') {
+            values.playId = getVimeoVideoId(values.url)
+        }
+
+        try {
+            const data = await fetch(`${process.env.REACT_APP_URL}videos/${state?.id}`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(values)
+            })
+            await data.json()
+            toast.success('Successfully submited.');
+            resetForm();
+            navigate('/app/video-list');
+            setIsLoading(false)
+        } catch (err) {
+            setIsLoading(false)
+            toast.error("Something wrong::" + err);
+            console.log("Something wrong::", err)
+        }
+
+    }
 
     return (
         <Container className='my-4'>
@@ -113,13 +185,12 @@ const AddVideo = () => {
                                 <label htmlFor="genre" className="form-label">
                                     Genre
                                 </label>
-                                {/* <Field type="text" id="genre" name="genre" className="form-control cus-input" placeholder="Enter genre" /> */}
                                 <Field as="select" name="genre" className="form-select cus-input">
+                                    <option value="" disabled defaultValue={true} > Select Video Type</option>
                                     {genreList?.map((item, index) => {
-                                        return (<>
-                                            {index === 0 && <option key={index} value="" disabled selected > Select Video Type</option>}
-                                            {index !== 0 && <option value={item.key}>{item.value}</option>}
-                                        </>)
+                                        return (<React.Fragment key={index}>
+                                           <option value={item?.name}>{item?.name}</option>
+                                        </React.Fragment>)
                                     })}
                                 </Field>
                                 <ErrorMessage name="genre" component="div" className="text-danger" />
@@ -130,7 +201,7 @@ const AddVideo = () => {
                                     Video Type
                                 </label>
                                 <Field as="select" name="type" className="form-select cus-input">
-                                    <option value="" disabled selected> Select Video Type</option>
+                                    <option value="" disabled defaultValue={true}> Select Video Type</option>
                                     <option value="youtube">YouTube</option>
                                     <option value="vimeo">Vimeo</option>
                                 </Field>
@@ -145,13 +216,25 @@ const AddVideo = () => {
                                 <label htmlFor="url" className="form-label">
                                     URL
                                 </label>
-                                <Field type="text" id="url" name="url" className="form-control cus-input" placeholder="Enter url" />
+                                <Field type="text" id="url" name="url" className="form-control cus-input" placeholder="Enter full url" />
                                 <ErrorMessage name="url" component="div" className="text-danger" />
                             </div>
 
-                            <Button variant="primary" type="submit" className='btn-dark btn'>
-                                Submit
+                            <div className="mb-3">
+                                <label htmlFor="title" className="form-label text-light">
+                                    Priority
+                                </label>
+                                <Field type="text" id="priority" name="priority" className="form-control cus-input" placeholder="Enter priority" />
+                                <ErrorMessage name="priority" component="div" className="text-danger" />
+                            </div>
+
+                            <Button variant="dark" type="submit" className='btn-dark btn' disabled={isLoading}>
+                                {isLoading && <Spinner animation="grow" size='sm' className='mx-2' />}
+                                {state?.id ? 'Update' : 'Submit'}
                             </Button>
+                            {/* <Button variant="dark" className='btn-dark btn mx-2' type='reset' onClick={()=> setIsLoading(false)}>
+                                Reset
+                            </Button> */}
                         </Form>
                     </Formik>
                 </Col>
