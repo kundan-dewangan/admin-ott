@@ -40,6 +40,11 @@ export const videoColumns = ({editHandler, deleteHandler}) =>  [
     width: "150px"
   },
   {
+    name: 'Priority',
+    selector: 'priority',
+    sortable: true,
+  },
+  {
     name: 'Type',
     selector: 'type',
     sortable: true,
@@ -54,11 +59,6 @@ export const videoColumns = ({editHandler, deleteHandler}) =>  [
     name: 'URL',
     selector: 'url',
     wrap: true
-  },
-  {
-    name: 'Priority',
-    selector: 'priority',
-    sortable: true,
   },
   {
     name: 'Action',
