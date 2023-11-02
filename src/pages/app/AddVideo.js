@@ -21,10 +21,14 @@ const AddVideo = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [genreList, setGenreList] = useState([]);
 
+    const [list, setList] = useState([])
+
+
     const { state } = useLocation();
 
     useEffect(() => {
         getAllGenre();
+        getAllVideos()
     }, [])
 
     const getAllGenre = async () => {
@@ -37,6 +41,24 @@ const AddVideo = () => {
             }).then((res) => res.json())
                 .then((data) => {
                     setGenreList(data);
+                })
+                .catch((err) => toast.error("Something wrong::" + err))
+        } catch (err) {
+            toast.error("Something wrong::" + err);
+            console.log("Error::", err)
+        }
+    }
+
+    const getAllVideos = async () => {
+        try {
+            await fetch(`${process.env.REACT_APP_URL}videos`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((res) => res.json())
+                .then((data) => {
+                    setList(data);
                 })
                 .catch((err) => toast.error("Something wrong::" + err))
         } catch (err) {
@@ -66,6 +88,7 @@ const AddVideo = () => {
 
     const addAPICall = async (values, resetForm) => {
         setIsLoading(true)
+        addIncresePriority(values);
         // Handle form submission here
         if (values?.type === 'youtube') {
             const mainUrl = getYouTubeVideoId(values.url)
@@ -97,8 +120,51 @@ const AddVideo = () => {
         }
 
     }
+
+
+    const checkPriority = (values) => {
+        if (values?.priority === state?.priority) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+
+    const addIncresePriority = (values) => {
+        const filterList = list?.filter((item) => (item.genre === values.genre && values.priority <= item.priority));
+        console.log("Add Filter list is ::", filterList);
+        if (filterList.length) {
+            for (const item of filterList) {
+                const payload = {
+                    priority: parseInt(item?.priority) + 1
+                }
+                priorityUpdateAPICall(item.id, payload)
+            }
+        }
+    }
+    const updateIncresePriority = (values) => {
+        console.log("form value is ::",)
+        const filterList = list?.filter((item) => (item.genre === values.genre && values.priority <= item.priority && item.id !== state.id));
+        console.log("Filter list is ::", filterList);
+        if (filterList.length) {
+            for (const item of filterList) {
+                const payload = {
+                    priority: parseInt(item?.priority) + 1
+                }
+                priorityUpdateAPICall(item.id, payload)
+            }
+        }
+    }
+
+
     const updateAPICall = async (values, resetForm) => {
         setIsLoading(true)
+        const isSamePriority = checkPriority(values)
+        console.log("is the priority update ::", isSamePriority)
+        if (isSamePriority) {
+            updateIncresePriority(values)
+        }
         // Handle form submission here
         if (values?.type === 'youtube') {
             values.playId = getYouTubeVideoId(values.url)
@@ -124,7 +190,22 @@ const AddVideo = () => {
             toast.error("Something wrong::" + err);
             console.log("Something wrong::", err)
         }
+    }
 
+    const priorityUpdateAPICall = async (id, values) => {
+        try {
+            const data = await fetch(`${process.env.REACT_APP_URL}videos/${id}`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(values)
+            })
+            return await data.json();
+        } catch (err) {
+            toast.error("Something wrong::" + err);
+            console.log("Something wrong::", err)
+        }
     }
 
     return (
@@ -189,7 +270,7 @@ const AddVideo = () => {
                                     <option value="" disabled defaultValue={true} > Select Video Type</option>
                                     {genreList?.map((item, index) => {
                                         return (<React.Fragment key={index}>
-                                           <option value={item?.name}>{item?.name}</option>
+                                            <option value={item?.name}>{item?.name}</option>
                                         </React.Fragment>)
                                     })}
                                 </Field>

@@ -34,6 +34,11 @@ export const videoColumns = ({editHandler, deleteHandler}) =>  [
     width: "300px"
   },
   {
+    name: 'ID',
+    selector: 'id',
+    sortable: true,
+  },
+  {
     name: 'Genre',
     selector: 'genre',
     sortable: true,
